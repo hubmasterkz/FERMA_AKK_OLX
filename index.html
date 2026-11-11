@@ -45,7 +45,7 @@
             try {
                 let res = await fetch('/api/status');
                 let data = await res.json();
-                document.getElementById('status-text').innerText = data.running ? "🔄 Работает..." "⏸ Остановлен";
+                document.getElementById('status-text').innerText = data.running ? "🔄 Работает..." : "⏸ Остановлен";
                 document.getElementById('log-text').innerText = data.last_log;
                 document.getElementById('start-btn').disabled = data.running;
             } catch (e) {
