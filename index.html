@@ -2,160 +2,92 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Локальная панель активации номеров</title>
+    <title>FERMA AKK OLX — Панель управления</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 900px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        h2, h3 { margin-top: 0; color: #2c3e50; }
-        .card { background: #fafbfc; border: 1px solid #e1e4e8; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; }
-        .balance-val { font-size: 22px; font-weight: bold; color: #27ae60; }
-        .btn { padding: 10px 18px; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: background 0.2s; }
-        .btn-start { background: #27ae60; }
-        .btn-start:hover { background: #219653; }
-        .btn-stop { background: #c0392b; }
-        .btn-stop:hover { background: #a93226; }
-        .btn-refresh { background: #3498db; }
-        .btn-refresh:hover { background: #2980b9; }
-        .status-box { background: #e8f8f5; padding: 12px 15px; border-radius: 6px; border-left: 5px solid #27ae60; font-family: monospace; font-size: 14px; margin-top: 10px; }
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
-        .stat-card { background: #f8f9fa; border: 1px solid #e1e4e8; padding: 12px; border-radius: 6px; text-align: center; }
-        .stat-num { font-size: 20px; font-weight: bold; color: #2c3e50; }
-        .stat-label { font-size: 12px; color: #7f8c8d; margin-top: 4px; }
-        .logs-container { background: #1e1e1e; color: #00ff00; padding: 12px; border-radius: 6px; font-family: monospace; font-size: 12px; height: 180px; overflow-y: auto; margin-top: 10px; white-space: pre-wrap; }
-        .table-container { max-height: 250px; overflow-y: auto; border: 1px solid #e1e4e8; border-radius: 6px; margin-top: 15px; }
-        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
-        th { background: #f8f9fa; padding: 10px 12px; border-bottom: 2px solid #dee2e6; position: sticky; top: 0; }
-        td { padding: 10px 12px; border-bottom: 1px solid #eee; }
-        .phone { font-weight: 600; color: #2980b9; }
-        .pass { font-family: monospace; color: #c0392b; font-weight: bold; }
-        .time { color: #7f8c8d; font-size: 12px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0d1117; color: #c9d1d9; margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; background: #161b22; padding: 20px; border-radius: 8px; border: 1px solid #30363d; }
+        h1 { color: #58a6ff; font-size: 22px; margin-top: 0; }
+        button { background: #238636; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #2ea043; }
+        button:disabled { background: #484f58; cursor: not-allowed; }
+        .status-box { background: #21262d; padding: 12px; border-radius: 6px; margin: 15px 0; border: 1px solid #30363d; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { text-align: left; padding: 8px; border-bottom: 1px solid #30363d; }
+        th { color: #8b949e; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>🚀 Панель управления OLX & Grizzly</h2>
-        
-        <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <span style="font-size: 14px; color: #555;">Баланс GrizzlySMS:</span><br>
-                <span id="balance-display" class="balance-val">{{ balance }} $</span>
-            </div>
-            <button class="btn btn-refresh" onclick="updateData()">🔄 Обновить</button>
+        <h1>FERMA AKK OLX Dashboard</h1>
+        <div class="status-box">
+            <p><strong>Статус бота:</strong> <span id="status-text">Загрузка...</span></p>
+            <p><strong>Последний лог:</strong> <span id="log-text">-</span></p>
+            <button id="start-btn" onclick="startBot()">Запустить воркер</button>
         </div>
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div id="stat-total" class="stat-num">0</div>
-                <div class="stat-label">Использовано номеров</div>
-            </div>
-            <div class="stat-card">
-                <div id="stat-failed" class="stat-num" style="color: #c0392b;">0</div>
-                <div class="stat-label">Неудачных (отмена)</div>
-            </div>
-            <div class="stat-card">
-                <div id="stat-success" class="stat-num" style="color: #27ae60;">0</div>
-                <div class="stat-label">Успешных аккаунтов</div>
-            </div>
-        </div>
-
-        <div class="card">
-            <h3>⚙️ Управление автоматическим воркером</h3>
-            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                <button class="btn btn-start" onclick="startBot()">▶ Запустить авто-режим</button>
-                <button class="btn btn-stop" onclick="stopBot()">⏹ Остановить</button>
-            </div>
-            <div style="font-size: 13px; color: #666; margin-top: 5px;">Статус воркера:</div>
-            <div id="bot-status-text" class="status-box">Инициализирован</div>
-
-            <div style="font-size: 13px; color: #666; margin-top: 15px;">Логи в реальном времени:</div>
-            <div id="logs-box" class="logs-container">Ожидание запуска...</div>
-        </div>
-
-        <h3>📋 Успешно восстановленные аккаунты (<span id="acc-count">{{ accounts | length }}</span>)</h3>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Телефон</th>
-                        <th>Пароль</th>
-                        <th>Время успешного входа</th>
-                    </tr>
-                </thead>
-                <tbody id="accounts-tbody">
-                    {% for acc in accounts %}
-                    <tr>
-                        <td class="phone">+{{ acc.phone }}</td>
-                        <td class="pass">{{ acc.password }}</td>
-                        <td class="time">{{ acc.time }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+        <h2>Успешные аккаунты</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Номер телефона</th>
+                    <th>Код</th>
+                    <th>Время</th>
+                </tr>
+            </thead>
+            <tbody id="accounts-table">
+                <tr><td colspan="3">Загрузка данных...</td></tr>
+            </tbody>
+        </table>
     </div>
 
     <script>
-    async function updateData() {
-        try {
-            let resBal = await fetch("/api/balance");
-            let dataBal = await resBal.json();
-            if (dataBal.balance) {
-                document.getElementById("balance-display").innerText = dataBal.balance + " $";
+        async function fetchStatus() {
+            try {
+                let res = await fetch('/api/status');
+                let data = await res.json();
+                document.getElementById('status-text').innerText = data.running ? "🔄 Работает..." "⏸ Остановлен";
+                document.getElementById('log-text').innerText = data.last_log;
+                document.getElementById('start-btn').disabled = data.running;
+            } catch (e) {
+                console.error(e);
             }
-
-            let resStatus = await fetch("/api/bot/status");
-            let statusData = await resStatus.json();
-            let statusEl = document.getElementById("bot-status-text");
-            statusEl.innerText = (statusData.running ? "🟢 РАБОТАЕТ: " : "🔴 ОСТАНОВЛЕН: ") + statusData.last_action;
-            
-            document.getElementById("stat-total").innerText = statusData.total_used;
-            document.getElementById("stat-failed").innerText = statusData.failed;
-            document.getElementById("stat-success").innerText = statusData.success;
-
-            if (statusData.logs) {
-                document.getElementById("logs-box").innerText = statusData.logs.join("\n");
-            }
-
-            let resAcc = await fetch("/api/accounts");
-            let accounts = await resAcc.json();
-            let tbody = document.getElementById("accounts-tbody");
-            document.getElementById("acc-count").innerText = accounts.length;
-            
-            tbody.innerHTML = "";
-            accounts.forEach(acc => {
-                let tr = document.createElement("tr");
-                tr.innerHTML = `
-                    <td class="phone">+${acc.phone}</td>
-                    <td class="pass">${acc.password}</td>
-                    <td class="time">${acc.time}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        } catch(e) {
-            console.error("Ошибка обновления", e);
         }
-    }
 
-    async function startBot() {
-        let res = await fetch("/api/bot/start", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({service: "sn", country: "2"})
-        });
-        let data = await res.json();
-        alert(data.message);
-        updateData();
-    }
+        async function fetchAccounts() {
+            try {
+                let res = await fetch('/api/accounts');
+                let data = await res.json();
+                let tbody = document.getElementById('accounts-table');
+                if (data.success && data.accounts.length > 0) {
+                    tbody.innerHTML = data.accounts.map(acc => `
+                        <tr>
+                            <td>${acc.phone}</td>
+                            <td>${acc.code || '-'}</td>
+                            <td>${new Date(acc.time * 1000).toLocaleString()}</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="3">Нет сохраненных аккаунтов</td></tr>`;
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
 
-    async function stopBot() {
-        let res = await fetch("/api/bot/stop", {method: "POST", headers: {"Content-Type": "application/json"}, body: "{}"});
-        let data = await res.json();
-        alert(data.message);
-        updateData();
-    }
+        async function startBot() {
+            let res = await fetch('/api/start', { method: 'POST', headers: {'Content-Type': 'application/json'} });
+            let data = await res.json();
+            alert(data.message);
+            fetchStatus();
+        }
 
-    setInterval(updateData, 2000);
-    updateData();
+        setInterval(() => {
+            fetchStatus();
+            fetchAccounts();
+        }, 3000);
+
+        fetchStatus();
+        fetchAccounts();
     </script>
 </body>
 </html>
