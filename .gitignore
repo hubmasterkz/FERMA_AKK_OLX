@@ -1,0 +1,6 @@
+.env
+__pycache__/
+data/
+.DS_Store
+*.py.save
+gemini-code-*.py
